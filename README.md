@@ -43,8 +43,8 @@ After the images are pushed to ECR, deploy the cloudformation stack: `textract.y
 
 After the cloudformation stack is complete, create a couple of validation rules in Dynamodb table. You can open CloudShell from AWS Console and run these commands:
 ```bash
-aws dynamodb execute-statement --statement "INSERT INTO expenseValidationRules VALUE {'ruleId': 1, 'type': 'regex', 'field': 'INVOICE_RECEIPT_ID', 'check': '(?i)[0-9]{3}[a-z]{3}[0-9]{3}$', 'errorTxt': 'Receipt number is not valid. It is of the format: 123ABC456'}"
-aws dynamodb execute-statement --statement "INSERT INTO expenseValidationRules VALUE {'ruleId': 2, 'type': 'regex', 'field': 'PO_NUMBER', 'check': '(?i)[a-z0-9]+$', 'errorTxt': 'PO number is not present'}"
+aws dynamodb execute-statement --statement "INSERT INTO \"$(aws cloudformation list-exports --query 'Exports[?Name==`InvoiceProcessorWorkflow-RulesTableName`].Value' --output text)\" VALUE {'ruleId': 1, 'type': 'regex', 'field': 'INVOICE_RECEIPT_ID', 'check': '(?i)[0-9]{3}[a-z]{3}[0-9]{3}$', 'errorTxt': 'Receipt number is not valid. It is of the format: 123ABC456'}"
+aws dynamodb execute-statement --statement "INSERT INTO \"$(aws cloudformation list-exports --query 'Exports[?Name==`InvoiceProcessorWorkflow-RulesTableName`].Value' --output text)\" VALUE {'ruleId': 2, 'type': 'regex', 'field': 'PO_NUMBER', 'check': '(?i)[a-z0-9]+$', 'errorTxt': 'PO number is not present'}"
 ```
 
 Test the functionality by uploading a few invoices to the input S3 bucket. A couple of sample invoices are provided in the repo. After upload, you should see receipts either getting approved or denied and landing in respective buckets. The reciept metadata is also pushed to Opensearch domain. You can use the file: `invoices.ndjson` to import index pattern, visulatization and dashboard:
