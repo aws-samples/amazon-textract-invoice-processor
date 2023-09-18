@@ -1,4 +1,4 @@
-FROM public.ecr.aws/lambda/python:3.9-x86_64
+FROM public.ecr.aws/lambda/python:3.10-x86_64
 RUN /var/lang/bin/python -m pip install --upgrade pip
 
 COPY requirements.txt  .

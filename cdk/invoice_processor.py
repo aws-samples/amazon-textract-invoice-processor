@@ -410,7 +410,7 @@ class InvoiceProcessorWorkflow(Stack):
             cognito_domain_name=f"{cognito_stack_name}-{account_id}-{current_region}",
             open_search_domain_props=opensearch.CfnDomainProps(
                 ebs_options=opensearch.CfnDomain.EBSOptionsProperty(
-                    volume_size=200, volume_type="gp2"
+                    volume_size=200, volume_type="gp3"
                 ),
                 cluster_config=opensearch.CfnDomain.ClusterConfigProperty(
                     instance_type="m6g.large.search"
