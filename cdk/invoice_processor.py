@@ -489,6 +489,7 @@ class InvoiceProcessorWorkflow(Stack):
                 os.path.join(script_location, "../lambda/map_opensearch_lambda/")
             ),
             memory_size=128,
+            timeout=Duration.seconds(900),
             architecture=lambda_.Architecture.X86_64,
             environment={},
         )
@@ -527,6 +528,7 @@ class InvoiceProcessorWorkflow(Stack):
                 )
             ),
             memory_size=128,
+            timeout=Duration.seconds(900),
             architecture=lambda_.Architecture.X86_64,
             environment={
                 "LOG_LEVEL": "DEBUG",
