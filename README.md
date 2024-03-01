@@ -46,8 +46,8 @@ aws dynamodb execute-statement --statement "INSERT INTO \"$(aws cloudformation l
 aws dynamodb execute-statement --statement "INSERT INTO \"$(aws cloudformation list-exports --query 'Exports[?Name==`InvoiceProcessorWorkflow-RulesTableName`].Value' --output text)\" VALUE {'ruleId': 2, 'type': 'regex', 'field': 'PO_NUMBER', 'check': '(?i)[a-z0-9]+$', 'errorTxt': 'PO number is not present'}"
 ```
 
-We also need to create a folder named `uploads` under the bucket: ${InvoiceProcessorWorkflow.DocumentLocation}. This is where input receipts/invoices are going to be placed.
-When a new document is placed under the ${InvoiceProcessorWorkflow.DocumentLocation}/uploads, a new Step Functions workflow is started for this document.
+We also need to create a folder named `uploads` under the bucket: InvoiceProcessorWorkflow.DocumentLocation. This is where input receipts/invoices are going to be placed.
+When a new document is placed under InvoiceProcessorWorkflow.DocumentLocation/uploads, a new Step Functions workflow is started for this document.
 
 To check the status of this document, the InvoiceProcessorWorkflow.StepFunctionFlowLink provides a link to the list of StepFunction executions in the AWS Management Console, displaying the status of the document processing for each document uploaded to Amazon S3. The tutorial Viewing and debugging executions on the Step Functions console provides an overview of the components and views in the AWS Console.
 
