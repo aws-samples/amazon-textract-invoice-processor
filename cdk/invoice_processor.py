@@ -18,7 +18,7 @@ from aws_cdk.aws_dynamodb import (
     AttributeType,
     BillingMode,
 )
-
+import aws_cdk as cdk
 
 class InvoiceProcessorWorkflow(Stack):
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
@@ -82,6 +82,7 @@ class InvoiceProcessorWorkflow(Stack):
             billing_mode=BillingMode.PAY_PER_REQUEST,
             partition_key=Attribute(name="ruleId", type=AttributeType.NUMBER),
             sort_key=Attribute(name="field", type=AttributeType.STRING),
+            removal_policy=cdk.RemovalPolicy.DESTROY,
         )
 
         # the decider checks if the document is of valid format and gets the
@@ -549,6 +550,26 @@ class InvoiceProcessorWorkflow(Stack):
             iam.PolicyStatement(
                 actions=["s3:PutObject"],
                 resources=[
+                    f"arn:aws:s3:::{document_bucket.bucket_name}/approved/*",
+                    f"arn:aws:s3:::{document_bucket.bucket_name}/approved",
+                    f"arn:aws:s3:::{document_bucket.bucket_name}/declined/*",
+                    f"arn:aws:s3:::{document_bucket.bucket_name}/declined"
+                ],
+            )
+        )
+        set_meta_data_function.add_to_role_policy(
+            iam.PolicyStatement(
+                actions=["s3:GetObject"],
+                resources=[
+                    f"arn:aws:s3:::{document_bucket.bucket_name}/uploads/*",
+                    f"arn:aws:s3:::{document_bucket.bucket_name}/uploads"
+                ],
+            )
+        )
+        set_meta_data_function.add_to_role_policy(
+            iam.PolicyStatement(
+                actions=["s3:PutObject"],
+                resources=[
                     f"arn:aws:s3:::{document_bucket.bucket_name}/{s3_opensearch_output_prefix}/*"
                 ],
             )
@@ -810,6 +831,13 @@ class InvoiceProcessorWorkflow(Stack):
             self,
             "OpenSearchLink",
             value=f"https://{current_region}.console.aws.amazon.com/aos/home?region={current_region}#/opensearch/domains/{lambda_to_opensearch.open_search_domain.domain_name}",  # noqa: E501
+        )
+        # Link to UserPoolId
+        CfnOutput(
+            self,
+            "CognitoUserPoolId",
+            value=f"{lambda_to_opensearch.user_pool.user_pool_id}",  # noqa: E501
+            export_name=f"{Aws.STACK_NAME}-CognitoUserPoolId",
         )
         # Link to UserPool
         CfnOutput(

@@ -25,7 +25,6 @@ table = dynamodb.Table(os.environ.get("RULES_TABLE", "expenseValidationRules"))
 response = table.scan()
 rules = response["Items"]
 
-
 def split_s3_path_to_bucket_and_key(s3_path: str) -> Tuple[str, str]:
     if len(s3_path) > 7 and s3_path.lower().startswith("s3://"):
         s3_bucket, s3_key = s3_path.replace("s3://", "").split("/", 1)
@@ -175,8 +174,8 @@ def lambda_handler(event, _):
         doc["VERIFICATION_STATUS"] = True
         doc["FAILING_RULES"] = failing_rules
         for rule in rules:
-            if rule["field"] in doc:
-                val = doc[rule["field"]]
+            if rule["field"] in doc['invoice_data']:
+                val = doc['invoice_data'][rule["field"]]
                 if rule["type"] == "regex":
                     p = re.compile(rule["check"])
                     if p.match(val) is None:
@@ -193,7 +192,13 @@ def lambda_handler(event, _):
                 doc["VERIFICATION_STATUS"] = False
                 doc["FAILING_RULES"] = failing_rules
             print(f"doc: {doc}")
-
+        
+        
+        copy_source = origin_file_uri.replace("s3://", "")
+        if doc["VERIFICATION_STATUS"]:
+            s3.copy_object(CopySource=copy_source, Bucket=copy_source.split("/")[0], Key='approved/{}'.format(copy_source.split("/")[-1]))
+        else:
+            s3.copy_object(CopySource=copy_source, Bucket=copy_source.split("/")[0], Key='declined/{}'.format(copy_source.split("/")[-1]))
         result_value += create_bulk_import_line(
             index=opensearch_index, action="index", doc_id=doc_id, doc=doc
         )

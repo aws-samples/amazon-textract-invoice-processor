@@ -20,6 +20,7 @@ pip install -r requirements.txt
 
 #### Deploy InvoiceProcessor stack
 ```bash
+# If you are running cdk first time in the account, run `cdk bootstrap` step first
 cdk deploy
 ```
 
@@ -51,6 +52,22 @@ When a new document is placed under InvoiceProcessorWorkflow.DocumentLocation/up
 
 To check the status of this document, the InvoiceProcessorWorkflow.StepFunctionFlowLink provides a link to the list of StepFunction executions in the AWS Management Console, displaying the status of the document processing for each document uploaded to Amazon S3. The tutorial Viewing and debugging executions on the Step Functions console provides an overview of the components and views in the AWS Console.
 
+## Cleanup
+
+* Empty the S3 bucket
+* Get the congnito user pool id using:
+```bash
+cognito_user_pool=$(aws cloudformation list-exports --query 'Exports[?Name==`InvoiceProcessorWorkflow-CognitoUserPoolId`].Value' --output text)
+echo $cognito_user_pool
+```
+* Run cdk destroy
+```bash
+cdk destroy
+```
+* Delete Cognito user pool either from ui or from console
+```bash
+aws cognito-idp  delete-user-pool --user-pool-id $cognito_user_pool
+```
 
 ## Security
 
