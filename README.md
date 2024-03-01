@@ -55,19 +55,19 @@ To check the status of this document, the InvoiceProcessorWorkflow.StepFunctionF
 ## Cleanup
 
 * Empty the S3 bucket
-* Get the congnito user pool id using:
-```bash
-cognito_user_pool=$(aws cloudformation list-exports --query 'Exports[?Name==`InvoiceProcessorWorkflow-CognitoUserPoolId`].Value' --output text)
-echo $cognito_user_pool
-```
+* Get the cognito user pool id using:
+   ```bash
+   cognito_user_pool=$(aws cloudformation list-exports --query 'Exports[?Name==`InvoiceProcessorWorkflow-CognitoUserPoolId`].Value' --output text)
+   echo $cognito_user_pool
+   ```
 * Run cdk destroy
-```bash
-cdk destroy
-```
+   ```bash
+   cdk destroy
+   ```
 * Delete Cognito user pool either from ui or from console
-```bash
-aws cognito-idp  delete-user-pool --user-pool-id $cognito_user_pool
-```
+   ```bash
+   aws cognito-idp  delete-user-pool --user-pool-id $cognito_user_pool
+   ```
 
 ## Security
 
