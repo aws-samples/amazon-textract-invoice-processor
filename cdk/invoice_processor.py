@@ -42,6 +42,12 @@ class InvoiceProcessorWorkflow(Stack):
         # when the documents should remain after deleting the CloudFormation stack!
         #######################################
 
+        
+        workflow_name = "InvoiceProcessor"
+        current_region = Stack.of(self).region
+        account_id = Stack.of(self).account
+        stack_name = Stack.of(self).stack_name
+        
         # Create the bucket for the documents and outputs
         document_bucket = s3.Bucket(
             self,
@@ -69,11 +75,6 @@ class InvoiceProcessorWorkflow(Stack):
             events=[s3.EventType.OBJECT_CREATED],
             filters=[s3.NotificationKeyFilter(prefix=s3_upload_prefix)],
         )
-
-        workflow_name = "InvoiceProcessor"
-        current_region = Stack.of(self).region
-        account_id = Stack.of(self).account
-        stack_name = Stack.of(self).stack_name
 
         expense_validation_rules_table = Table(
             self,
@@ -415,7 +416,7 @@ class InvoiceProcessorWorkflow(Stack):
                 cluster_config=opensearch.CfnDomain.ClusterConfigProperty(
                     instance_type="m6g.large.search"
                 ),
-                engine_version="OpenSearch_2.7",
+                engine_version="OpenSearch_2.11",
             ),
         )
 
@@ -786,9 +787,9 @@ class InvoiceProcessorWorkflow(Stack):
         # OUTPUT
         CfnOutput(
             self,
-            "DocumentUploadLocation",
-            value=f"s3://{document_bucket.bucket_name}/{s3_upload_prefix}/",
-            export_name=f"{Aws.STACK_NAME}-DocumentUploadLocation",
+            "DocumentLocation",
+            value=f"s3://{document_bucket.bucket_name}/",
+            export_name=f"{Aws.STACK_NAME}-DocumentLocation",
         )
         CfnOutput(
             self,
