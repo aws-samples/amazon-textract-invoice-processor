@@ -56,6 +56,18 @@ class InvoiceProcessorWorkflow(Stack):
             enforce_ssl=True,
             auto_delete_objects=False,
             block_public_access=s3.BlockPublicAccess.BLOCK_ALL,
+            lifecycle_rules=[
+                s3.LifecycleRule(
+                    id='ArchiveObjects',
+                    enabled=True,
+                    expiration=cdk.Duration.days(365),
+                    transitions=[
+                        s3.Transition(
+                            storage_class=s3.StorageClass.INTELLIGENT_TIERING,
+                            transition_after=cdk.Duration.days(30),
+                        ),]
+                    )
+                ]
         )
         nag.NagSuppressions.add_resource_suppressions(
             document_bucket,
